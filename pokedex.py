@@ -1,6 +1,8 @@
 
 from abc import ABC, abstractmethod
 import random
+from datetime import datetime
+import os
 
 
 class PokemonBase(ABC):
@@ -208,6 +210,116 @@ def aplicar_danio(danio, defensor):
         defensor.defensa -= danio
 
 
+def generar_nombre_batalla():
+    ahora = datetime.now()
+    fecha_str = ahora.strftime("%d-%m-%y")
+    hora_str = ahora.strftime("%H-%M")
+    return f"batalla_{fecha_str}_{hora_str}.txt"
+
+
+def guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas):
+    try:
+        nombre_archivo = generar_nombre_batalla()
+
+        with open(nombre_archivo, "w") as archivo:
+            archivo.write("=== COMBATE ===\n")
+            archivo.write(f"Entrenador: {nombre_entrenador}\n")
+            archivo.write(f"Pokemon: {mi_pokemon.nombre}\n")
+            archivo.write(f"Detalles: ataque={mi_pokemon.ataque} defensa={mi_pokemon.defensa} vida={mi_pokemon.vida}\n")
+            archivo.write(f"Enemigo: {enemigo.nombre}\n")
+            archivo.write(f"Detalles Enemigo: ataque={enemigo.ataque} defensa={enemigo.defensa} vida={enemigo.vida}\n")
+
+            for linea in log_lineas:
+                archivo.write(linea + "\n")
+
+            archivo.write(f"Resultado: {resultado}\n")
+
+            ahora = datetime.now()
+            fecha_hora = ahora.strftime("%d-%m-%Y %H:%M")
+            archivo.write(f"Fecha y hora de la batalla: {fecha_hora}\n")
+            archivo.write("-" * 26 + "\n")
+
+        return nombre_archivo
+    except IOError as e:
+        print(f"\nError al guardar el archivo de batalla: {e}\n")
+        return None
+
+
+def ver_registro_batalla():
+    try:
+        archivos_batalla = [f for f in os.listdir(".") if f.startswith("batalla_") and f.endswith(".txt")]
+
+        if not archivos_batalla:
+            print("\nNo hay registros de batallas disponibles.\n")
+            return
+
+        archivos_batalla.sort(reverse=True)
+
+        print("\n========================================")
+        print("       REGISTROS DE BATALLAS")
+        print("========================================\n")
+
+        try:
+            with open(archivos_batalla[0], "r") as archivo:
+                contenido = archivo.read()
+                print(contenido)
+        except FileNotFoundError:
+            print(f"\nEl archivo {archivos_batalla[0]} no fue encontrado.\n")
+        except IOError as e:
+            print(f"\nError al leer el archivo: {e}\n")
+    except Exception as e:
+        print(f"\nError al acceder a los registros: {e}\n")
+
+
+def pruebas_manejo_errores():
+    print("\n========================================")
+    print("    PRUEBAS DE MANEJO DE ERRORES")
+    print("========================================\n")
+
+    print("--- Prueba 1: ValueError (entrada numerica invalida) ---")
+    try:
+        numero = int(input("Intenta escribir 'abc' en lugar de un numero: "))
+        print(f"Numero ingresado: {numero}")
+    except ValueError:
+        print("Error capturado: ValueError - No es un numero valido.")
+    print()
+
+    print("--- Prueba 2: IndexError (acceso a indice invalido) ---")
+    try:
+        lista = [1, 2, 3]
+        print(f"Lista: {lista}")
+        print(f"Accediendo a indice 99: {lista[99]}")
+    except IndexError:
+        print("Error capturado: IndexError - Indice fuera de rango.")
+    print()
+
+    print("--- Prueba 3: ZeroDivisionError (division entre cero) ---")
+    try:
+        resultado = 100 / 0
+    except ZeroDivisionError:
+        print("Error capturado: ZeroDivisionError - No se puede dividir entre cero.")
+    print()
+
+    print("--- Prueba 4: FileNotFoundError (archivo no existe) ---")
+    try:
+        with open("archivo_inexistente.txt", "r") as archivo:
+            contenido = archivo.read()
+    except FileNotFoundError:
+        print("Error capturado: FileNotFoundError - El archivo no existe.")
+    print()
+
+    print("--- Prueba 5: IOError (error de lectura) ---")
+    try:
+        with open("/dev/null", "r") as archivo:
+            linea = archivo.readline()
+            print("Lectura exitosa.")
+    except IOError as e:
+        print(f"Error capturado: IOError - {e}")
+    print()
+
+    print("Todas las pruebas completadas sin detener el programa.\n")
+
+
 def mostrar_stats_combate(p1, p2):
     print("\n----------------------------------------")
     print(f"  TU POKEMON  : {p1.nombre}")
@@ -217,7 +329,7 @@ def mostrar_stats_combate(p1, p2):
     print("----------------------------------------\n")
 
 
-def combatir(mi_pokemon, lista_enemigos, lista_atrapados):
+def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
     if not lista_enemigos:
         print("\nNo hay enemigos disponibles para combatir.\n")
         return
@@ -232,33 +344,52 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados):
     mostrar_stats_combate(mi_pokemon, enemigo)
 
     en_combate = True
+    log_lineas = []
+    numero_turno = 1
+
     while en_combate and mi_pokemon.vida > 0 and enemigo.vida > 0:
+        log_lineas.append(f"== TURNO {numero_turno} ==")
+
         print("--- TU TURNO ---")
         print("1. Pasar turno")
         print("2. Ataque normal")
         print("3. Ataque especial")
         print("4. Huir")
 
-        opcion = input("Elige una opcion: ").strip()
+        opcion = None
+        while opcion is None:
+            try:
+                opcion = input("Elige una opcion: ").strip()
+                if opcion not in ["1", "2", "3", "4"]:
+                    print("Opcion invalida, intenta de nuevo.")
+                    opcion = None
+            except ValueError:
+                print("Error: debes ingresar una opcion valida.")
+                opcion = None
 
         if opcion == "1":
             print(f"\n{mi_pokemon.nombre} paso su turno.")
+            log_lineas.append(f"{mi_pokemon.nombre} paso su turno.")
         elif opcion == "2":
             danio = mi_pokemon.ataque
             print(f"\n{mi_pokemon.nombre} ataca! Dano: {danio}")
+            log_lineas.append(f"{mi_pokemon.nombre} usa ataque normal")
+            log_lineas.append(f"Dano de ataque: {danio}")
             aplicar_danio(danio, enemigo)
+            log_lineas.append(f"Stats del Pokemon Enemigo - Defensa: {enemigo.defensa} Vida: {enemigo.vida}")
         elif opcion == "3":
             danio = int(mi_pokemon.ataque * 1.5)
             print(f"\n{mi_pokemon.nombre} usa {mi_pokemon.ataque_especial}! Dano: {danio}")
+            log_lineas.append(f"{mi_pokemon.nombre} usa ataque especial")
+            log_lineas.append(f"Dano de ataque: {danio}")
             aplicar_danio(danio, enemigo)
+            log_lineas.append(f"Stats del Pokemon Enemigo - Defensa: {enemigo.defensa} Vida: {enemigo.vida}")
         elif opcion == "4":
             print(f"\n{mi_pokemon.nombre} huyo del combate!\n")
             enemigo.ataque = atk_orig
             enemigo.defensa = def_orig
             enemigo.vida = vida_orig
             return
-        else:
-            print("\nOpcion invalida, se paso el turno.")
 
         if enemigo.vida <= 0:
             print(f"\n{enemigo.nombre} fue derrotado!")
@@ -267,11 +398,17 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados):
                 lista_atrapados.append(enemigo)
                 lista_enemigos.remove(enemigo)
                 print(f"!Atrapaste a {enemigo.nombre}!\n")
+                resultado = "Victoria! Has derrotado al Pokemon enemigo y lo has atrapado!"
+                log_lineas.append(f"Resultado: {resultado}")
+                guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
             else:
                 print(f"{enemigo.nombre} escapo antes de ser atrapado.\n")
                 enemigo.ataque = atk_orig
                 enemigo.defensa = def_orig
                 enemigo.vida = vida_orig
+                resultado = "Victoria pero el Pokemon escapo"
+                log_lineas.append(f"Resultado: {resultado}")
+                guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
             break
 
         print("\n--- TURNO DEL ENEMIGO ---")
@@ -279,20 +416,32 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados):
 
         if accion_enemigo == 1:
             print(f"{enemigo.nombre} paso su turno.")
+            log_lineas.append(f"{enemigo.nombre} paso su turno.")
         elif accion_enemigo == 2:
             danio_enemigo = enemigo.ataque
             print(f"{enemigo.nombre} ataca! Dano: {danio_enemigo}")
+            log_lineas.append(f"{enemigo.nombre} usa ataque normal")
+            log_lineas.append(f"Dano de ataque: {danio_enemigo}")
             aplicar_danio(danio_enemigo, mi_pokemon)
+            log_lineas.append(f"Stats de mi Pokemon - Defensa: {mi_pokemon.defensa} Vida: {mi_pokemon.vida}")
         else:
             danio_enemigo = int(enemigo.ataque * 1.5)
             print(f"{enemigo.nombre} usa {enemigo.ataque_especial}! Dano: {danio_enemigo}")
+            log_lineas.append(f"{enemigo.nombre} usa ataque especial")
+            log_lineas.append(f"Dano de ataque: {danio_enemigo}")
             aplicar_danio(danio_enemigo, mi_pokemon)
+            log_lineas.append(f"Stats de mi Pokemon - Defensa: {mi_pokemon.defensa} Vida: {mi_pokemon.vida}")
 
         mostrar_stats_combate(mi_pokemon, enemigo)
 
         if mi_pokemon.vida <= 0:
             print(f"\n{mi_pokemon.nombre} fue derrotado. Fin del combate.\n")
             en_combate = False
+            resultado = "Derrota"
+            log_lineas.append(f"Resultado: {resultado}")
+            guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
+
+        numero_turno += 1
 
     if en_combate and enemigo.vida > 0:
         enemigo.ataque = atk_orig
@@ -311,7 +460,16 @@ def menu_entrenamiento(mi_pokemon):
         print("4. Entrenamiento Personalizado (valores manuales)")
         print("5. Volver al menu principal")
 
-        opcion = input("Elige una opcion: ").strip()
+        opcion = None
+        while opcion is None:
+            try:
+                opcion = input("Elige una opcion: ").strip()
+                if opcion not in ["1", "2", "3", "4", "5"]:
+                    print("Opcion invalida, intenta de nuevo.")
+                    opcion = None
+            except ValueError:
+                print("Error: debes ingresar una opcion valida.")
+                opcion = None
 
         if opcion == "1":
             mi_pokemon.entrenar()
@@ -323,7 +481,17 @@ def menu_entrenamiento(mi_pokemon):
             print("2. Subir Defensa (+20)")
             print("3. Subir Vida    (+20)")
             print("4. Cancelar")
-            sub = input("Elige: ").strip()
+            sub = None
+            while sub is None:
+                try:
+                    sub = input("Elige: ").strip()
+                    if sub not in ["1", "2", "3", "4"]:
+                        print("Opcion invalida, intenta de nuevo.")
+                        sub = None
+                except ValueError:
+                    print("Error: debes ingresar una opcion valida.")
+                    sub = None
+
             if sub == "1":
                 mi_pokemon.subirAtaque()
                 print(f"\nAtaque aumentado. Ataque actual: {mi_pokemon.ataque}\n")
@@ -335,8 +503,6 @@ def menu_entrenamiento(mi_pokemon):
                 print(f"\nVida aumentada. Vida actual: {mi_pokemon.vida}\n")
             elif sub == "4":
                 pass
-            else:
-                print("\nOpcion invalida.\n")
 
         elif opcion == "3":
             mi_pokemon.actualizar()
@@ -359,25 +525,41 @@ def menu_entrenamiento(mi_pokemon):
                 print(f"  Vida: {mi_pokemon.vida}  Nivel: {mi_pokemon.nivel}\n")
                 mi_pokemon._verificarEvolucion()
             except ValueError:
-                print("\nValor invalido, regresando al menu de entrenamiento.\n")
+                print("\nError: todos los valores deben ser numeros. Regresando al menu.\n")
 
         elif opcion == "5":
             break
-        else:
-            print("\nOpcion invalida.\n")
 
 
 def crear_enemigo_personalizado(lista_enemigos):
     print("\n--- CREAR POKEMON ENEMIGO PERSONALIZADO ---")
     nombre = input("Nombre del Pokemon: ").strip()
     descripcion = input("Descripcion: ").strip()
-    try:
-        ataque = int(input("Ataque (1-1000): "))
-        defensa = int(input("Defensa (1-1000): "))
-        vida = int(input("Vida (1-1000): "))
-    except ValueError:
-        print("\nValor invalido, no se creo el enemigo.\n")
-        return
+
+    ataque = None
+    while ataque is None:
+        try:
+            ataque = int(input("Ataque (1-1000): "))
+        except ValueError:
+            print("Error: debes ingresar un numero valido.")
+            ataque = None
+
+    defensa = None
+    while defensa is None:
+        try:
+            defensa = int(input("Defensa (1-1000): "))
+        except ValueError:
+            print("Error: debes ingresar un numero valido.")
+            defensa = None
+
+    vida = None
+    while vida is None:
+        try:
+            vida = int(input("Vida (1-1000): "))
+        except ValueError:
+            print("Error: debes ingresar un numero valido.")
+            vida = None
+
     ataque_especial = input("Nombre del ataque especial: ").strip()
 
     print("\nElige el tipo:")
@@ -385,7 +567,17 @@ def crear_enemigo_personalizado(lista_enemigos):
     print("2. Fuego")
     print("3. Electrico")
     print("4. Hierba")
-    tipo = input("Tipo: ").strip()
+
+    tipo = None
+    while tipo is None:
+        try:
+            tipo = input("Tipo: ").strip()
+            if tipo not in ["1", "2", "3", "4"]:
+                print("Opcion invalida, intenta de nuevo.")
+                tipo = None
+        except ValueError:
+            print("Error: debes ingresar una opcion valida.")
+            tipo = None
 
     if tipo == "1":
         nuevo = PokemonAgua()
@@ -415,17 +607,20 @@ def elegir_pokemon():
     print("4. Hierba    - Bulbasaur  (Bulbasaur -> Ivysaur -> Venusaur)")
 
     while True:
-        opcion = input("Elige (1-4): ").strip()
-        if opcion == "1":
-            return PokemonAgua()
-        elif opcion == "2":
-            return PokemonFuego()
-        elif opcion == "3":
-            return PokemonElectrico()
-        elif opcion == "4":
-            return PokemonHierba()
-        else:
-            print("Opcion invalida, intenta de nuevo.")
+        try:
+            opcion = input("Elige (1-4): ").strip()
+            if opcion == "1":
+                return PokemonAgua()
+            elif opcion == "2":
+                return PokemonFuego()
+            elif opcion == "3":
+                return PokemonElectrico()
+            elif opcion == "4":
+                return PokemonHierba()
+            else:
+                print("Opcion invalida, intenta de nuevo.")
+        except ValueError:
+            print("Error: debes ingresar una opcion valida.")
 
 
 def crear_enemigos_iniciales():
@@ -465,52 +660,81 @@ def crear_enemigos_iniciales():
 
 
 def main():
-    print("\n========================================")
-    print("       BIENVENIDO A LA POKEDEX")
-    print("========================================")
-
-    nombre_jugador = input("Ingresa tu nombre de entrenador: ").strip()
-    print(f"\nHola, {nombre_jugador}!")
-    print("Aun no tienes un Pokemon. Debes elegir uno para comenzar.\n")
-
-    mi_pokemon = elegir_pokemon()
-    print(f"\nElegiste a {mi_pokemon.nombre}! Aqui estan sus detalles:")
-    mi_pokemon.detallesPokemon()
-
-    lista_enemigos = crear_enemigos_iniciales()
-    lista_atrapados = []
-
-    while True:
+    try:
         print("\n========================================")
-        print("          MENU PRINCIPAL")
+        print("       BIENVENIDO A LA POKEDEX")
         print("========================================")
-        print("1. Detalles de mi Pokemon")
-        print("2. Hablar Pokemon")
-        print("3. Entrenar Pokemon")
-        print("4. Combatir")
-        print("5. Ver Pokemon Atrapados")
-        print("6. Crear Pokemon Enemigo")
-        print("7. Salir")
 
-        opcion = input("Elige una opcion: ").strip()
+        nombre_jugador = None
+        while nombre_jugador is None:
+            try:
+                nombre_jugador = input("Ingresa tu nombre de entrenador: ").strip()
+                if not nombre_jugador:
+                    print("Error: el nombre no puede estar vacio.")
+                    nombre_jugador = None
+            except ValueError:
+                print("Error: ingresa un nombre valido.")
+                nombre_jugador = None
 
-        if opcion == "1":
-            mi_pokemon.detallesPokemon()
-        elif opcion == "2":
-            mi_pokemon.hablar()
-        elif opcion == "3":
-            menu_entrenamiento(mi_pokemon)
-        elif opcion == "4":
-            combatir(mi_pokemon, lista_enemigos, lista_atrapados)
-        elif opcion == "5":
-            mi_pokemon.verPokemonsAtrapados(lista_atrapados)
-        elif opcion == "6":
-            crear_enemigo_personalizado(lista_enemigos)
-        elif opcion == "7":
-            print(f"\nHasta luego, {nombre_jugador}! Fue un honor entrenar contigo.\n")
-            break
-        else:
-            print("\nOpcion invalida, intenta de nuevo.\n")
+        print(f"\nHola, {nombre_jugador}!")
+        print("Aun no tienes un Pokemon. Debes elegir uno para comenzar.\n")
+
+        mi_pokemon = elegir_pokemon()
+        print(f"\nElegiste a {mi_pokemon.nombre}! Aqui estan sus detalles:")
+        mi_pokemon.detallesPokemon()
+
+        lista_enemigos = crear_enemigos_iniciales()
+        lista_atrapados = []
+
+        while True:
+            print("\n========================================")
+            print("          MENU PRINCIPAL")
+            print("========================================")
+            print("1. Detalles de mi Pokemon")
+            print("2. Hablar Pokemon")
+            print("3. Entrenar Pokemon")
+            print("4. Combatir")
+            print("5. Ver Pokemon Atrapados")
+            print("6. Crear Pokemon Enemigo")
+            print("7. Pruebas de Manejo de Errores")
+            print("8. Registros de Batallas")
+            print("9. Guardar Partida")
+            print("10. Salir")
+
+            opcion = None
+            while opcion is None:
+                try:
+                    opcion = input("Elige una opcion: ").strip()
+                    if opcion not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+                        print("Opcion invalida, intenta de nuevo.")
+                        opcion = None
+                except ValueError:
+                    print("Error: debes ingresar una opcion valida.")
+                    opcion = None
+
+            if opcion == "1":
+                mi_pokemon.detallesPokemon()
+            elif opcion == "2":
+                mi_pokemon.hablar()
+            elif opcion == "3":
+                menu_entrenamiento(mi_pokemon)
+            elif opcion == "4":
+                combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_jugador)
+            elif opcion == "5":
+                mi_pokemon.verPokemonsAtrapados(lista_atrapados)
+            elif opcion == "6":
+                crear_enemigo_personalizado(lista_enemigos)
+            elif opcion == "7":
+                pruebas_manejo_errores()
+            elif opcion == "8":
+                ver_registro_batalla()
+            elif opcion == "9":
+                print("\n(Esta opcion sera completada en la siguiente parte)\n")
+            elif opcion == "10":
+                print(f"\nHasta luego, {nombre_jugador}! Fue un honor entrenar contigo.\n")
+                break
+    except Exception as e:
+        print(f"\nError inesperado: {e}\n")
 
 main()
 

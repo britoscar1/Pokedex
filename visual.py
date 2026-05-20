@@ -1,4 +1,3 @@
-# Codigos de color ANSI
 ROJO = "\033[91m"
 VERDE = "\033[92m"
 AMARILLO = "\033[93m"

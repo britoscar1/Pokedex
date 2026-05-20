@@ -64,16 +64,13 @@ class Pokemon(PokemonBase):
                 self.evolucion -= 1
                 return
             print(f"\n!El Pokemon ha evolucionado! Ahora es: {self.nombre}\n")
-        elif self.nivel >= 100 and self.evolucion >= self.max_evolucion:
-            self.nivel = 0
-            print(f"\n{self.nombre} ya esta en su maxima evolucion. Nivel reiniciado a 0.\n")
 
     def entrenar(self):
         self.ataque += 10
         self.defensa += 10
         if self.evolucion < self.max_evolucion:
             self.nivel += 10
-        self._verificarEvolucion()
+            self._verificarEvolucion()
 
     def subirAtaque(self):
         self.ataque += self.boost_ataque

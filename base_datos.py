@@ -106,17 +106,32 @@ def cargar_o_nueva_partida(conexion):
             print("========================================")
             for i, p in enumerate(partidas):
                 print(f"{i + 1}. [{p[2]}] {p[1]} – {p[3]}")
+            print(f"{len(partidas) + 1}. Nueva partida")
 
             seleccion = None
             while seleccion is None:
                 try:
-                    seleccion = int(input("Selecciona una partida (numero): ")) - 1
-                    if seleccion < 0 or seleccion >= len(partidas):
+                    seleccion = int(input("Selecciona una opcion (numero): ")) - 1
+                    if seleccion < 0 or seleccion > len(partidas):
                         print("Seleccion invalida, intenta de nuevo.")
                         seleccion = None
                 except ValueError:
                     print("Error: debes ingresar un numero valido.")
                     seleccion = None
+
+            if seleccion == len(partidas):
+                nombre_entrenador = None
+                while nombre_entrenador is None:
+                    try:
+                        nombre_entrenador = input("Ingresa tu nombre de entrenador: ").strip()
+                        if not nombre_entrenador:
+                            print("Error: el nombre no puede estar vacio.")
+                            nombre_entrenador = None
+                    except ValueError:
+                        print("Error: ingresa un nombre valido.")
+                        nombre_entrenador = None
+                mi_pokemon = elegir_pokemon()
+                return (nombre_entrenador, mi_pokemon, [])
 
             partida = partidas[seleccion]
             partida_id = partida[0]
@@ -169,11 +184,11 @@ def guardar_partida(conexion, nombre_entrenador, mi_pokemon, lista_atrapados):
         fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute("""
             INSERT INTO partidas (nombre_entrenador, fecha_guardado, pokemon_nombre, pokemon_tipo,
-                                  pokemon_ataque, pokemon_defensa, pokemon_vida, pokemon_nivel, pokemon_evolucion)
+            pokemon_ataque, pokemon_defensa, pokemon_vida, pokemon_nivel, pokemon_evolucion)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (nombre_entrenador, fecha, mi_pokemon.nombre, tipo,
-              mi_pokemon.ataque, mi_pokemon.defensa, mi_pokemon.vida,
-              mi_pokemon.nivel, mi_pokemon.evolucion))
+            mi_pokemon.ataque, mi_pokemon.defensa, mi_pokemon.vida,
+            mi_pokemon.nivel, mi_pokemon.evolucion))
         partida_id = cursor.lastrowid
         for p in lista_atrapados:
             tipo_p = _obtener_tipo_string(p)

@@ -1,0 +1,14 @@
+=== COMBATE ===
+Entrenador: arianana
+Pokemon: Bulbasaur
+Detalles: ataque=200 defensa=200 vida=200
+Enemigo: Magnemite
+Detalles Enemigo: ataque=20 defensa=0 vida=0
+== TURNO 1 ==
+Bulbasaur usa ataque normal
+Dano de ataque: 200
+Stats del Pokemon Enemigo - Defensa: 0 Vida: 0
+Resultado: Victoria! Has derrotado al Pokemon enemigo y lo has atrapado!
+Resultado: Victoria! Has derrotado al Pokemon enemigo y lo has atrapado!
+Fecha y hora de la batalla: 20-05-2026 10:53
+--------------------------

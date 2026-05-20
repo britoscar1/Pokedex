@@ -57,13 +57,21 @@ class Pokemon(PokemonBase):
         if self.nivel >= 100 and self.evolucion < self.max_evolucion:
             self.evolucion += 1
             self.nivel = 0
-            self.nombre = self.evoluciones[self.evolucion - 1]
+            try:
+                self.nombre = self.evoluciones[self.evolucion - 1]
+            except IndexError:
+                self.evolucion -= 1
+                return
             print(f"\n!El Pokemon ha evolucionado! Ahora es: {self.nombre}\n")
+        elif self.nivel >= 100 and self.evolucion >= self.max_evolucion:
+            self.nivel = 0
+            print(f"\n{self.nombre} ya esta en su maxima evolucion. Nivel reiniciado a 0.\n")
 
     def entrenar(self):
         self.ataque += 10
         self.defensa += 10
-        self.nivel += 10
+        if self.evolucion < self.max_evolucion:
+            self.nivel += 10
         self._verificarEvolucion()
 
     def subirAtaque(self):

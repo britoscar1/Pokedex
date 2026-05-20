@@ -74,7 +74,16 @@ def cargar_o_nueva_partida(conexion):
         partidas = cursor.fetchall()
 
         if not partidas:
-            resp = input("No hay partidas guardadas. ¿Deseas iniciar una nueva partida? (s/n): ").strip().lower()
+            resp = None
+            while resp is None:
+                try:
+                    resp = input("No hay partidas guardadas. Deseas iniciar una nueva partida? (s/n): ").strip().lower()
+                    if resp not in ["s", "n"]:
+                        print("Opcion invalida, ingresa 's' o 'n'.")
+                        resp = None
+                except ValueError:
+                    print("Opcion invalida, ingresa 's' o 'n'.")
+                    resp = None
             if resp == "s":
                 nombre_entrenador = None
                 while nombre_entrenador is None:
@@ -90,7 +99,7 @@ def cargar_o_nueva_partida(conexion):
                 return (nombre_entrenador, mi_pokemon, [])
             else:
                 print("Hasta luego!")
-                exit()
+                return None
         else:
             print("\n========================================")
             print("         PARTIDAS GUARDADAS")
@@ -117,6 +126,9 @@ def cargar_o_nueva_partida(conexion):
                 partida[4], partida[3], partida[5], partida[6],
                 partida[7], partida[8], partida[9]
             )
+            if mi_pokemon is None:
+                print("Error: no se pudo reconstruir el Pokemon de la partida. Iniciando con Pokemon por defecto.")
+                mi_pokemon = elegir_pokemon()
 
             cursor.execute("SELECT * FROM capturados WHERE partida_id = ?", (partida_id,))
             capturados_rows = cursor.fetchall()
@@ -128,7 +140,7 @@ def cargar_o_nueva_partida(conexion):
                     p.atrapado = True
                     lista_atrapados.append(p)
 
-            print(f"\n¡Bienvenido de nuevo {nombre_entrenador}!")
+            print(f"\nBienvenido de nuevo {nombre_entrenador}!")
             mi_pokemon.detallesPokemon()
 
             return (nombre_entrenador, mi_pokemon, lista_atrapados)
@@ -138,7 +150,16 @@ def cargar_o_nueva_partida(conexion):
 
 
 def guardar_partida(conexion, nombre_entrenador, mi_pokemon, lista_atrapados):
-    resp = input("¿Deseas guardar el progreso actual? (s/n): ").strip().lower()
+    resp = None
+    while resp is None:
+        try:
+            resp = input("Deseas guardar el progreso actual? (s/n): ").strip().lower()
+            if resp not in ["s", "n"]:
+                print("Opcion invalida, ingresa 's' o 'n'.")
+                resp = None
+        except ValueError:
+            print("Opcion invalida, ingresa 's' o 'n'.")
+            resp = None
     if resp != "s":
         return
     try:

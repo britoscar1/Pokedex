@@ -63,7 +63,7 @@ def crear_enemigos_iniciales():
 
     enemigo4 = PokemonElectrico()
     enemigo4.nombre = "Magnemite"
-    enemigo4.descripcion = "Pokemon Electrico pequeño y debil"
+    enemigo4.descripcion = "Pokemon Electrico pequeno y debil"
     enemigo4.ataque = 20
     enemigo4.defensa = 15
     enemigo4.vida = 35
@@ -75,7 +75,11 @@ def crear_enemigos_iniciales():
 def crear_enemigo_personalizado(lista_enemigos):
     print("\n--- CREAR POKEMON ENEMIGO PERSONALIZADO ---")
     nombre = input("Nombre del Pokemon: ").strip()
+    if not nombre:
+        nombre = "Desconocido"
     descripcion = input("Descripcion: ").strip()
+    if not descripcion:
+        descripcion = "Sin descripcion"
 
     ataque = None
     while ataque is None:
@@ -102,6 +106,8 @@ def crear_enemigo_personalizado(lista_enemigos):
             vida = None
 
     ataque_especial = input("Nombre del ataque especial: ").strip()
+    if not ataque_especial:
+        ataque_especial = "Ataque"
 
     print("\nElige el tipo:")
     print("1. Agua")
@@ -177,13 +183,12 @@ def pruebas_manejo_errores():
         print("Error capturado: FileNotFoundError - El archivo no existe.")
     print()
 
-    print("--- Prueba 5: IOError (error de lectura) ---")
+    print("--- Prueba 5: IOError (error de escritura en ruta invalida) ---")
     try:
-        with open("/dev/null", "r") as archivo:
-            linea = archivo.readline()
-            print("Lectura exitosa.")
+        with open("/ruta/invalida/que/no/existe/archivo.txt", "w") as archivo:
+            archivo.write("datos")
     except IOError as e:
-        print(f"Error capturado: IOError - {e}")
+        print(f"Error capturado: IOError - No se pudo escribir en la ruta especificada.")
     print()
 
     print("Todas las pruebas completadas sin detener el programa.\n")

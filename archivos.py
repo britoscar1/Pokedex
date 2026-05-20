@@ -37,12 +37,25 @@ def guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, 
         return None
 
 
-def ver_registro_batalla():
+def ver_registro_batalla(nombre_entrenador=None):
     try:
-        archivos_batalla = [f for f in os.listdir(".") if f.startswith("batalla_") and f.endswith(".txt")]
+        todos = [f for f in os.listdir(".") if f.startswith("batalla_") and f.endswith(".txt")]
+
+        if nombre_entrenador:
+            archivos_batalla = []
+            for f in todos:
+                try:
+                    with open(f, "r") as archivo:
+                        primera_linea = archivo.read(500)
+                        if f"Entrenador: {nombre_entrenador}" in primera_linea:
+                            archivos_batalla.append(f)
+                except (FileNotFoundError, IOError):
+                    continue
+        else:
+            archivos_batalla = todos
 
         if not archivos_batalla:
-            print("\nNo hay registros de batallas disponibles.\n")
+            print("\nNo hay registros de batallas disponibles para este entrenador.\n")
             return
 
         archivos_batalla.sort(reverse=True)
@@ -50,13 +63,30 @@ def ver_registro_batalla():
         print("\n========================================")
         print("       REGISTROS DE BATALLAS")
         print("========================================\n")
+        print(f"Archivos encontrados: {len(archivos_batalla)}")
+        for i, nombre in enumerate(archivos_batalla):
+            print(f"  {i + 1}. {nombre}")
+
+        seleccion = None
+        while seleccion is None:
+            try:
+                entrada = input("\nElige el numero del registro a ver (o 0 para el mas reciente): ").strip()
+                idx = int(entrada)
+                if idx == 0:
+                    seleccion = 0
+                elif 1 <= idx <= len(archivos_batalla):
+                    seleccion = idx - 1
+                else:
+                    print("Numero invalido, intenta de nuevo.")
+            except ValueError:
+                print("Error: debes ingresar un numero valido.")
 
         try:
-            with open(archivos_batalla[0], "r") as archivo:
+            with open(archivos_batalla[seleccion], "r") as archivo:
                 contenido = archivo.read()
                 print(contenido)
         except FileNotFoundError:
-            print(f"\nEl archivo {archivos_batalla[0]} no fue encontrado.\n")
+            print(f"\nEl archivo {archivos_batalla[seleccion]} no fue encontrado.\n")
         except IOError as e:
             print(f"\nError al leer el archivo: {e}\n")
     except Exception as e:

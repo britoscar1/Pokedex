@@ -18,7 +18,6 @@ def main():
 
         resultado = cargar_o_nueva_partida(conexion)
         if resultado is None:
-            print("No se pudo cargar la partida. Saliendo.")
             conexion.close()
             return
 
@@ -66,7 +65,7 @@ def main():
             elif opcion == "7":
                 pruebas_manejo_errores()
             elif opcion == "8":
-                ver_registro_batalla()
+                ver_registro_batalla(nombre_jugador)
             elif opcion == "9":
                 guardar_partida(conexion, nombre_jugador, mi_pokemon, lista_atrapados)
             elif opcion == "10":

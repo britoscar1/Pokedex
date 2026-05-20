@@ -1,13 +1,15 @@
+from visual import titulo_menu, color, CYAN
+
+
 def menu_entrenamiento(mi_pokemon):
     while True:
-        print("\n========================================")
-        print("         ENTRENAR POKEMON")
-        print("========================================")
-        print("1. Entrenamiento Normal      (ataque, defensa, nivel +10)")
-        print("2. Entrenamiento Individual  (sube un atributo +20)")
-        print("3. Entrenamiento Intensivo   (ataque, defensa, vida +20)")
-        print("4. Entrenamiento Personalizado (valores manuales)")
-        print("5. Volver al menu principal")
+        print()
+        titulo_menu("ENTRENAR POKEMON")
+        print(color("  1.", CYAN), "Entrenamiento Normal      (ataque, defensa, nivel +10)")
+        print(color("  2.", CYAN), "Entrenamiento Individual  (sube un atributo +20)")
+        print(color("  3.", CYAN), "Entrenamiento Intensivo   (ataque, defensa, vida +20)")
+        print(color("  4.", CYAN), "Entrenamiento Personalizado (valores manuales)")
+        print(color("  5.", CYAN), "Volver al menu principal")
 
         opcion = None
         while opcion is None:

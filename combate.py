@@ -1,6 +1,7 @@
 import random
 
 from archivos import guardar_registro_batalla
+from visual import barra_vida, mensaje_victoria, mensaje_derrota, color, CYAN, AMARILLO, ROJO, VERDE
 
 
 def aplicar_danio(danio, defensor):
@@ -12,13 +13,13 @@ def aplicar_danio(danio, defensor):
         defensor.defensa -= danio
 
 
-def mostrar_stats_combate(p1, p2):
-    print("\n----------------------------------------")
-    print(f"  TU POKEMON  : {p1.nombre}")
-    print(f"  Ataque: {p1.ataque}  Defensa: {p1.defensa}  Vida: {p1.vida}")
-    print(f"  ENEMIGO     : {p2.nombre}")
-    print(f"  Ataque: {p2.ataque}  Defensa: {p2.defensa}  Vida: {p2.vida}")
-    print("----------------------------------------\n")
+def mostrar_stats_combate(p1, p2, vida_max_p1, vida_max_p2):
+    print(color("\n----------------------------------------", CYAN))
+    print(barra_vida(p1.nombre, p1.vida, vida_max_p1))
+    print(f"  Ataque: {p1.ataque}  Defensa: {p1.defensa}")
+    print(barra_vida(p2.nombre, p2.vida, vida_max_p2))
+    print(f"  Ataque: {p2.ataque}  Defensa: {p2.defensa}")
+    print(color("----------------------------------------\n", CYAN))
 
 
 def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
@@ -28,12 +29,11 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
 
     enemigo = random.choice(lista_enemigos)
 
-    atk_orig = enemigo.ataque
-    def_orig = enemigo.defensa
-    vida_orig = enemigo.vida
+    vida_max_mi = mi_pokemon.vida
+    vida_max_enemigo = enemigo.vida
 
-    print(f"\n!Un {enemigo.nombre} salvaje aparecio!")
-    mostrar_stats_combate(mi_pokemon, enemigo)
+    print(color(f"\n!Un {enemigo.nombre} salvaje aparecio!", AMARILLO))
+    mostrar_stats_combate(mi_pokemon, enemigo, vida_max_mi, vida_max_enemigo)
 
     en_combate = True
     log_lineas = []
@@ -78,13 +78,11 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
             log_lineas.append(f"Stats del Pokemon Enemigo - Defensa: {enemigo.defensa} Vida: {enemigo.vida}")
         elif opcion == "4":
             print(f"\n{mi_pokemon.nombre} huyo del combate!\n")
-            enemigo.ataque = atk_orig
-            enemigo.defensa = def_orig
-            enemigo.vida = vida_orig
             return
 
         if enemigo.vida <= 0:
-            print(f"\n{enemigo.nombre} fue derrotado!")
+            mensaje_victoria()
+            print(color(f"\n{enemigo.nombre} fue derrotado!", VERDE))
             if random.random() < 0.7:
                 enemigo.atrapado = True
                 lista_atrapados.append(enemigo)
@@ -95,9 +93,7 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
                 guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
             else:
                 print(f"{enemigo.nombre} escapo antes de ser atrapado.\n")
-                enemigo.ataque = atk_orig
-                enemigo.defensa = def_orig
-                enemigo.vida = vida_orig
+                lista_enemigos.remove(enemigo)
                 resultado = "Victoria pero el Pokemon escapo"
                 log_lineas.append(f"Resultado: {resultado}")
                 guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
@@ -124,18 +120,14 @@ def combatir(mi_pokemon, lista_enemigos, lista_atrapados, nombre_entrenador):
             aplicar_danio(danio_enemigo, mi_pokemon)
             log_lineas.append(f"Stats de mi Pokemon - Defensa: {mi_pokemon.defensa} Vida: {mi_pokemon.vida}")
 
-        mostrar_stats_combate(mi_pokemon, enemigo)
+        mostrar_stats_combate(mi_pokemon, enemigo, vida_max_mi, vida_max_enemigo)
 
         if mi_pokemon.vida <= 0:
-            print(f"\n{mi_pokemon.nombre} fue derrotado. Fin del combate.\n")
+            mensaje_derrota()
+            print(color(f"\n{mi_pokemon.nombre} fue derrotado. Fin del combate.\n", ROJO))
             en_combate = False
             resultado = "Derrota"
             log_lineas.append(f"Resultado: {resultado}")
             guardar_registro_batalla(nombre_entrenador, mi_pokemon, enemigo, resultado, log_lineas)
 
         numero_turno += 1
-
-    if en_combate and enemigo.vida > 0:
-        enemigo.ataque = atk_orig
-        enemigo.defensa = def_orig
-        enemigo.vida = vida_orig

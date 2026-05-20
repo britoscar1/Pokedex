@@ -3,13 +3,12 @@ from combate import combatir
 from archivos import ver_registro_batalla
 from entrenamiento import menu_entrenamiento
 from utilidades import crear_enemigos_iniciales, crear_enemigo_personalizado, pruebas_manejo_errores
+from visual import banner_bienvenida, titulo_menu, color, VERDE, CYAN, AMARILLO
 
 
 def main():
     try:
-        print("\n========================================")
-        print("       BIENVENIDO A LA POKEDEX")
-        print("========================================")
+        banner_bienvenida()
 
         conexion = inicializar_bd()
         if conexion is None:
@@ -25,19 +24,18 @@ def main():
         lista_enemigos = crear_enemigos_iniciales()
 
         while True:
-            print("\n========================================")
-            print("          MENU PRINCIPAL")
-            print("========================================")
-            print("1. Detalles de mi Pokemon")
-            print("2. Hablar Pokemon")
-            print("3. Entrenar Pokemon")
-            print("4. Combatir")
-            print("5. Ver Pokemon Atrapados")
-            print("6. Crear Pokemon Enemigo")
-            print("7. Pruebas de Manejo de Errores")
-            print("8. Registros de Batallas")
-            print("9. Guardar Partida")
-            print("10. Salir")
+            print()
+            titulo_menu("MENU PRINCIPAL")
+            print(color("  1.", CYAN), "Detalles de mi Pokemon")
+            print(color("  2.", CYAN), "Hablar Pokemon")
+            print(color("  3.", CYAN), "Entrenar Pokemon")
+            print(color("  4.", CYAN), "Combatir")
+            print(color("  5.", CYAN), "Ver Pokemon Atrapados")
+            print(color("  6.", CYAN), "Crear Pokemon Enemigo")
+            print(color("  7.", CYAN), "Pruebas de Manejo de Errores")
+            print(color("  8.", CYAN), "Registros de Batallas")
+            print(color("  9.", CYAN), "Guardar Partida")
+            print(color(" 10.", CYAN), "Salir")
 
             opcion = None
             while opcion is None:
@@ -69,7 +67,7 @@ def main():
             elif opcion == "9":
                 guardar_partida(conexion, nombre_jugador, mi_pokemon, lista_atrapados)
             elif opcion == "10":
-                print(f"\nHasta luego, {nombre_jugador}! Fue un honor entrenar contigo.\n")
+                print(color(f"\nHasta luego, {nombre_jugador}! Fue un honor entrenar contigo.\n", AMARILLO))
                 guardar_partida(conexion, nombre_jugador, mi_pokemon, lista_atrapados)
                 conexion.close()
                 break

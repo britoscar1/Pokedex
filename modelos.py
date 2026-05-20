@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from visual import color, CYAN, AMARILLO, VERDE, MAGENTA, NEGRITA
 
 
 class PokemonBase(ABC):
@@ -39,16 +40,16 @@ class Pokemon(PokemonBase):
         self.max_evolucion = 3
 
     def detallesPokemon(self):
-        print("\n========================================")
-        print(f"  Nombre      : {self.nombre}")
+        print(color("\n========================================", CYAN))
+        print(color(f"  Nombre      : {self.nombre}", NEGRITA))
         print(f"  Descripcion : {self.descripcion}")
-        print(f"  Ataque      : {self.ataque}")
-        print(f"  Defensa     : {self.defensa}")
-        print(f"  Vida        : {self.vida}")
-        print(f"  Nivel       : {self.nivel}")
-        print(f"  Evolucion   : {self.evolucion}")
+        print(color(f"  Ataque      : {self.ataque}", AMARILLO))
+        print(color(f"  Defensa     : {self.defensa}", AMARILLO))
+        print(color(f"  Vida        : {self.vida}", VERDE))
+        print(color(f"  Nivel       : {self.nivel}", MAGENTA))
+        print(color(f"  Evolucion   : {self.evolucion}", MAGENTA))
         print(f"  Atrapado    : {self.atrapado}")
-        print("========================================\n")
+        print(color("========================================\n", CYAN))
 
     def hablar(self):
         print(f"\n{self.nombre}!\n")

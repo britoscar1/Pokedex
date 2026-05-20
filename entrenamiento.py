@@ -1,0 +1,80 @@
+def menu_entrenamiento(mi_pokemon):
+    while True:
+        print("\n========================================")
+        print("         ENTRENAR POKEMON")
+        print("========================================")
+        print("1. Entrenamiento Normal      (ataque, defensa, nivel +10)")
+        print("2. Entrenamiento Individual  (sube un atributo +20)")
+        print("3. Entrenamiento Intensivo   (ataque, defensa, vida +20)")
+        print("4. Entrenamiento Personalizado (valores manuales)")
+        print("5. Volver al menu principal")
+
+        opcion = None
+        while opcion is None:
+            try:
+                opcion = input("Elige una opcion: ").strip()
+                if opcion not in ["1", "2", "3", "4", "5"]:
+                    print("Opcion invalida, intenta de nuevo.")
+                    opcion = None
+            except ValueError:
+                print("Error: debes ingresar una opcion valida.")
+                opcion = None
+
+        if opcion == "1":
+            mi_pokemon.entrenar()
+            print("\n--- Stats actualizados ---")
+            print(f"  Ataque: {mi_pokemon.ataque}  Defensa: {mi_pokemon.defensa}  Nivel: {mi_pokemon.nivel}\n")
+
+        elif opcion == "2":
+            print("\n1. Subir Ataque  (+20)")
+            print("2. Subir Defensa (+20)")
+            print("3. Subir Vida    (+20)")
+            print("4. Cancelar")
+            sub = None
+            while sub is None:
+                try:
+                    sub = input("Elige: ").strip()
+                    if sub not in ["1", "2", "3", "4"]:
+                        print("Opcion invalida, intenta de nuevo.")
+                        sub = None
+                except ValueError:
+                    print("Error: debes ingresar una opcion valida.")
+                    sub = None
+
+            if sub == "1":
+                mi_pokemon.subirAtaque()
+                print(f"\nAtaque aumentado. Ataque actual: {mi_pokemon.ataque}\n")
+            elif sub == "2":
+                mi_pokemon.subirDefensa()
+                print(f"\nDefensa aumentada. Defensa actual: {mi_pokemon.defensa}\n")
+            elif sub == "3":
+                mi_pokemon.subirVida()
+                print(f"\nVida aumentada. Vida actual: {mi_pokemon.vida}\n")
+            elif sub == "4":
+                pass
+
+        elif opcion == "3":
+            mi_pokemon.actualizar()
+            print("\n--- Stats actualizados ---")
+            print(f"  Ataque: {mi_pokemon.ataque}  Defensa: {mi_pokemon.defensa}  Vida: {mi_pokemon.vida}\n")
+
+        elif opcion == "4":
+            print("\nIngresa los nuevos valores:")
+            try:
+                nuevo_ataque = int(input("Nuevo ataque (1-1000): "))
+                nuevo_defensa = int(input("Nueva defensa (1-1000): "))
+                nuevo_vida = int(input("Nueva vida (1-1000): "))
+                nuevo_nivel = int(input("Nuevo nivel (0-100): "))
+                mi_pokemon.ataque = nuevo_ataque
+                mi_pokemon.defensa = nuevo_defensa
+                mi_pokemon.vida = nuevo_vida
+                mi_pokemon.nivel = nuevo_nivel
+                print("\n--- Stats actualizados ---")
+                print(f"  Ataque: {mi_pokemon.ataque}  Defensa: {mi_pokemon.defensa}")
+                print(f"  Vida: {mi_pokemon.vida}  Nivel: {mi_pokemon.nivel}\n")
+                mi_pokemon._verificarEvolucion()
+            except ValueError:
+                print("\nError: todos los valores deben ser numeros. Regresando al menu.\n")
+
+        elif opcion == "5":
+            break

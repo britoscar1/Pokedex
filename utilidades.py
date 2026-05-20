@@ -147,48 +147,65 @@ def crear_enemigo_personalizado(lista_enemigos):
 
 
 def pruebas_manejo_errores():
-    print("\n========================================")
-    print("    PRUEBAS DE MANEJO DE ERRORES")
-    print("========================================\n")
+    while True:
+        print("\n========================================")
+        print("    PRUEBAS DE MANEJO DE ERRORES")
+        print("========================================")
+        print("1. ValueError        - dato numerico invalido")
+        print("2. IndexError        - indice fuera de rango")
+        print("3. ZeroDivisionError - division entre cero")
+        print("4. FileNotFoundError - archivo inexistente")
+        print("5. IOError           - error de escritura")
+        print("6. Volver al menu principal")
 
-    print("--- Prueba 1: ValueError (entrada numerica invalida) ---")
-    try:
-        numero = int(input("Intenta escribir 'abc' en lugar de un numero: "))
-        print(f"Numero ingresado: {numero}")
-    except ValueError:
-        print("Error capturado: ValueError - No es un numero valido.")
-    print()
+        opcion = None
+        while opcion is None:
+            try:
+                opcion = input("Elige una opcion: ").strip()
+                if opcion not in ["1", "2", "3", "4", "5", "6"]:
+                    print("Opcion invalida, intenta de nuevo.")
+                    opcion = None
+            except ValueError:
+                print("Opcion invalida, intenta de nuevo.")
+                opcion = None
 
-    print("--- Prueba 2: IndexError (acceso a indice invalido) ---")
-    try:
-        lista = [1, 2, 3]
-        print(f"Lista: {lista}")
-        print(f"Accediendo a indice 99: {lista[99]}")
-    except IndexError:
-        print("Error capturado: IndexError - Indice fuera de rango.")
-    print()
+        if opcion == "1":
+            try:
+                int("abc")
+            except ValueError:
+                print("  [ValueError] Ocurrio porque se intento convertir el texto 'abc' a numero.")
+                print("  Manejado con except ValueError: se ignoro el valor y el programa siguio.")
 
-    print("--- Prueba 3: ZeroDivisionError (division entre cero) ---")
-    try:
-        resultado = 100 / 0
-    except ZeroDivisionError:
-        print("Error capturado: ZeroDivisionError - No se puede dividir entre cero.")
-    print()
+        elif opcion == "2":
+            try:
+                lista = [1, 2, 3]
+                _ = lista[99]
+            except IndexError:
+                print("  [IndexError] Ocurrio porque se accedio al indice 99 en una lista de solo 3 elementos.")
+                print("  Manejado con except IndexError: se evito el crash y el programa siguio.")
 
-    print("--- Prueba 4: FileNotFoundError (archivo no existe) ---")
-    try:
-        with open("archivo_inexistente.txt", "r") as archivo:
-            contenido = archivo.read()
-    except FileNotFoundError:
-        print("Error capturado: FileNotFoundError - El archivo no existe.")
-    print()
+        elif opcion == "3":
+            try:
+                _ = 100 / 0
+            except ZeroDivisionError:
+                print("  [ZeroDivisionError] Ocurrio porque se intento dividir 100 entre 0, lo cual es matematicamente invalido.")
+                print("  Manejado con except ZeroDivisionError: se capturo el error y el programa siguio.")
 
-    print("--- Prueba 5: IOError (error de escritura en ruta invalida) ---")
-    try:
-        with open("/ruta/invalida/que/no/existe/archivo.txt", "w") as archivo:
-            archivo.write("datos")
-    except IOError as e:
-        print(f"Error capturado: IOError - No se pudo escribir en la ruta especificada.")
-    print()
+        elif opcion == "4":
+            try:
+                with open("archivo_inexistente.txt", "r") as archivo:
+                    archivo.read()
+            except FileNotFoundError:
+                print("  [FileNotFoundError] Ocurrio porque se intento abrir 'archivo_inexistente.txt' y no existe.")
+                print("  Manejado con except FileNotFoundError: se informo al usuario y el programa siguio.")
 
-    print("Todas las pruebas completadas sin detener el programa.\n")
+        elif opcion == "5":
+            try:
+                with open("/ruta/invalida/que/no/existe/archivo.txt", "w") as archivo:
+                    archivo.write("datos")
+            except IOError:
+                print("  [IOError] Ocurrio porque se intento escribir en una ruta del sistema que no existe.")
+                print("  Manejado con except IOError: se capturo el error de escritura y el programa siguio.")
+
+        elif opcion == "6":
+            break
